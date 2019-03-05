@@ -1,10 +1,16 @@
 
 # Öffis Paper
 
-Raspberry Pi based real time Vienna public transport monitor using a triple color E-ink display
+Raspberry Pi based real time Vienna public transport monitor using a triple color E-ink display  
 Get public transport information instantly, like being at a real station!
 
 Öffis &rarr; austrian slang for public transport
+
+<p align="center">
+  <img height=500 src="https://github.com/djaffry/oeffis-paper/blob/master/pics/standing.jpg" alt="Öffis Paper Standing">
+</p>
+
+more pictures in the [pics](pics) folder
 
 ## Features
 - Displays ÖBB and Wiener Linien public transport times, Citybike Wien station capacities and weather at a glance
@@ -21,6 +27,9 @@ Get public transport information instantly, like being at a real station!
 - Class 10 Micro SD Card with at least 8GB (16GB recommended) for the Raspberry Pi.
 - A typical 5V micro USB phone charger to charge the Raspberry Pi
 
+<p align="center">
+  <img height=500 src="https://github.com/djaffry/oeffis-paper/blob/master/pics/wiring.jpg" alt="Öffis Paper Wiring">
+</p>
 
 ## Getting Started
 
