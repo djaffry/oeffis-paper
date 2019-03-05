@@ -17,8 +17,8 @@ more pictures in the [pics](pics) folder
 - Intuitive UI, see time, stations with their lines and weather on a 7.5 inch E-ink screen
 - Config file for easier configuring without changing code
 - Citybike Wien API for CitybikeWien station data, written in Python3
-- ÖBB API for ÖBB countdown like train times, written in Python3
-- Wiener Linien API for countdown like bus, tram and metro times, written in Python3
+- ÖBB API for getting the ETA of the upcoming ÖBB trains as a countdown in minutes, written in Python3
+- Wiener Linien API for getting the ETA of upcoming busses, trams or metros as a countdown in minutes, written in Python3
 - yr.no API for weather data, written in Python3
 
 ## Hardware used 
@@ -52,7 +52,7 @@ An example [config.json](./config.json) can be found in the root directory.
 Descriptions to the different key-value pairs can be found in the respective classes or here:
 
 * `display` (json) - display relevant configurations
-    * `renderOffset` (int, optional) - corrects displayed time and countdown by this offset in minutes, counters display hysteresis
+    * `renderOffset` (int, optional) - corrects displayed time and minutes until arrival by this offset in minutes, counters display hysteresis
     * `updateInterval` (int) - the display will try to update every `updateInterval` seconds. due to delay, sometimes this is not possible 
     * `downtime` (json, optional) - downtime relevant configurations, will be improved in future
         * `from` (int) - downtime start
