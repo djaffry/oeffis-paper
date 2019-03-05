@@ -1,0 +1,92 @@
+{
+  "display": {
+    "renderOffset": 1,
+    "updateInterval": 59,
+    "downtime": {
+      "from": 21,
+      "to": 7
+    },
+    "title": "Öffis Paper"
+  },
+
+  "stations": {
+    "avgWaitingTime": 3,
+    "walkingTime": [
+      {
+        "station": "Messe-Prater",
+        "time": 8
+      }, {
+        "station": "Praterstern",
+        "time": 12
+      }, {
+        "station": "Vorgartenstraße",
+        "time": 10
+      }
+    ]
+  },
+
+  "api": {
+    "citybikewien": {
+      "updateInterval": 600,
+      "stations": [{
+        "id": 206
+      }, {
+        "id": 207,
+        "rename": "Messe-Prater"
+      }, {
+        "id": 212,
+        "rename": "Vorgartenstraße"
+      }]
+    },
+
+    "oebb": {
+      "updateInterval": 50,
+      "connections": [
+        {
+          "from": 1290201,
+          "to": 1292101,
+          "comment": "Praterstern - Floridsdorf"
+        }, {
+          "from": 1290201,
+          "to": 1291201,
+          "comment": "Praterstern - Meidling"
+        }, {
+          "from": 1290201,
+          "to": 1293001,
+          "comment": "Praterstern - Flughafen"
+        }
+      ],
+      "rename": [
+        {
+          "old": "Wien Meidling Bahnhof",
+          "new": "nach Meidling"
+        }, {
+          "old": "Flughafen Wien Bahnhof",
+          "new": "zum Flughafen"
+        }, {
+          "old": "Wien Praterstern Bahnhof",
+          "new": "Praterstern"
+        }, {
+          "old": "Wien Floridsdorf Bahnhof",
+          "new": "nach Floridsdorf"
+        }, {
+          "old": "Wien Hütteldorf Bahnhof",
+          "new": "nach Hütteldorf"
+        }
+      ]
+    },
+
+    "wrlinien": {
+      "updateInterval": 50,
+      "key": "YOUR-KEY-HERE",
+      "rbls": [4110, 4119, 4264, 4259, 2709, 345, 2716, 649]
+    },
+
+    "yrno": {
+      "updateInterval": 3600,
+      "city": "Vienna",
+      "province": "Vienna",
+      "country": "Austria"
+    }
+  }
+}

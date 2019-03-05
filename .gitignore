@@ -1,0 +1,15 @@
+venv
+.git
+.idea
+**.iml
+**.ini
+**/__pycache__/**
+**.pdf
+**.svg
+**.json
+!config.json
+
+**.zip
+fonts/**
+assets/yr/**
+lib/waveshare/**
