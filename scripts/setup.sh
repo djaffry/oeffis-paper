@@ -146,9 +146,9 @@ echo "created temp directory: $WS_TEMP_DIR"
 WS_FILE_NAME="$WS_TEMP_DIR/waveshare_lib.7z"
 
 echo "download latest driver for waveshare 7.5inch e-paper Model B from"
-WS_LIB_URL="https://www.waveshare.com/w/upload/archive/0/01/20180413070150%217.5inch_e-paper_hat_b_code.7z"
+WS_LIB_URL="https://www.waveshare.com/w/upload/archive/0/01/20190327094726%217.5inch_e-paper_hat_b_code.7z"
 echo "$WS_LIB_URL"
-curl ${WS_LIB_URL} --output ${WS_FILE_NAME}
+curl ${WS_LIB_URL} -A "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36" --output ${WS_FILE_NAME}
 
 echo "extracting waveshare raspberryPi python library"
 7z x -aoa -o${WS_TEMP_DIR} ${WS_FILE_NAME} > /dev/null # silent 7z
@@ -156,16 +156,17 @@ echo "extracting waveshare raspberryPi python library"
 echo "moving waveshare library to ../lib"
 mkdir -p ../lib/waveshare
 
-cp -rf ${WS_TEMP_DIR}/7.5inch_e-paper_hat_b_code/raspberrypi/python/* ../lib/waveshare
+cp -rf ${WS_TEMP_DIR}/RaspberryPi/python3/* ../lib/waveshare
 
 #echo "cd $WS_TEMP_DIR"
+#ls
 #read
 
 echo "clean up"
 rm -rf ${WS_TEMP_DIR}
 
 echo "fix waveshare library imports"
-patch -b -d ../lib/waveshare/ < patches/epd7in5b_201804130701.patch
+patch -b -d ../lib/waveshare/ < patches/epd7in5b_20190327_import.patch
 
 
 echo ""

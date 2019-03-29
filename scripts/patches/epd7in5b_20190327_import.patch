@@ -1,0 +1,11 @@
+--- epd7in5b.py	2019-03-28 08:41:30.641870244 +0100
++++ epd7in5b_fixed.py	2019-03-29 07:41:06.853667388 +0100
+@@ -48,7 +48,7 @@
+ #
+ 
+ 
+-import epdconfig
++from lib.waveshare import epdconfig
+ from PIL import Image
+ import RPi.GPIO as GPIO
+ 
