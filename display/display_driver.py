@@ -1,17 +1,16 @@
 from .bpm_render import render
-import time
 from utils import get_config
 from utils import get_logger
+from lib.waveshare.epd7in5b import EPD
+import time
 
 logger = get_logger(__name__)
-
-# from lib.waveshare.epd7in5b import EPD
 
 
 class UIDriver:
     def __init__(self):
-        self.driver = None
-        # self.driver = EPD()
+        # self.driver = None
+        self.driver = EPD()
         if self.driver is not None:
             self.driver.init()
 
@@ -26,7 +25,8 @@ class UIDriver:
             # show image on e-paper display
             adjusted_traffic_data = self._adjust_to_render_offset(traffic_data)
             image = render(adjusted_traffic_data, weather_data)
-            self.driver.display_frame(self.driver.get_frame_buffer(image.rotate(90, expand=True)))
+            self.driver.display(self.driver.getbuffer(image.rotate(90, expand=True)),
+                                self.driver.getbuffer(image.rotate(90, expand=True)))
 
         else:
             # show image on screen
