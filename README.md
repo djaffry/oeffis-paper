@@ -1,18 +1,24 @@
 
 # Öffis Paper
 
-Raspberry Pi based real time Vienna public transport monitor using a triple color E-ink display
+Raspberry Pi based real time Vienna public transport monitor using a triple color E-ink display  
 Get public transport information instantly, like being at a real station!
 
 Öffis &rarr; austrian slang for public transport
+
+<p align="center">
+  <img height=500 src="https://github.com/djaffry/oeffis-paper/blob/master/pics/standing.jpg" alt="Öffis Paper Standing">
+</p>
+
+more pictures in the [pics](pics) folder
 
 ## Features
 - Displays ÖBB and Wiener Linien public transport times, Citybike Wien station capacities and weather at a glance
 - Intuitive UI, see time, stations with their lines and weather on a 7.5 inch E-ink screen
 - Config file for easier configuring without changing code
 - Citybike Wien API for CitybikeWien station data, written in Python3
-- ÖBB API for ÖBB countdown like train times, written in Python3
-- Wiener Linien API for countdown like bus, tram and metro times, written in Python3
+- ÖBB API for getting the ETA of the upcoming ÖBB trains as a countdown in minutes, written in Python3
+- Wiener Linien API for getting the ETA of upcoming busses, trams or metros as a countdown in minutes, written in Python3
 - yr.no API for weather data, written in Python3
 
 ## Hardware used 
@@ -21,6 +27,9 @@ Get public transport information instantly, like being at a real station!
 - Class 10 Micro SD Card with at least 8GB (16GB recommended) for the Raspberry Pi.
 - A typical 5V micro USB phone charger to charge the Raspberry Pi
 
+<p align="center">
+  <img height=500 src="https://github.com/djaffry/oeffis-paper/blob/master/pics/wiring.jpg" alt="Öffis Paper Wiring">
+</p>
 
 ## Getting Started
 
@@ -43,7 +52,7 @@ An example [config.json](./config.json) can be found in the root directory.
 Descriptions to the different key-value pairs can be found in the respective classes or here:
 
 * `display` (json) - display relevant configurations
-    * `renderOffset` (int, optional) - corrects displayed time and countdown by this offset in minutes, counters display hysteresis
+    * `renderOffset` (int, optional) - corrects displayed time and minutes until arrival by this offset in minutes, counters display hysteresis
     * `updateInterval` (int) - the display will try to update every `updateInterval` seconds. due to delay, sometimes this is not possible 
     * `downtime` (json, optional) - downtime relevant configurations, will be improved in future
         * `from` (int) - downtime start
