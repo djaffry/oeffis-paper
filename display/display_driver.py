@@ -1,4 +1,4 @@
-from .bpm_render import render
+from .bpm_render import render, render_exception
 from utils import get_config
 from utils import get_logger
 # from lib.waveshare.epd7in5b import EPD
@@ -22,14 +22,22 @@ class UIDriver:
         :param weather_data: weather_data from api
         """
         if self.driver is not None:
-            # show image on e-paper display
-            adjusted_traffic_data = self._adjust_to_render_offset(traffic_data)
-            image_black, image_red = render(adjusted_traffic_data, weather_data)
-            self.driver.display(self.driver.getbuffer(image_black), self.driver.getbuffer(image_red))
+            traffic_data = self._adjust_to_render_offset(traffic_data)
+        image_black, image_red = render(traffic_data, weather_data)
+        self._show(image_black, image_red)
 
+    def display_exception(self, err):
+        if self.driver is not None:
+            self.driver.Clear(0xFF)
+        image_black, image_red = render_exception(err)
+        self._show(image_black, image_red)
+
+    def _show(self, image_black, image_red):
+        if self.driver is not None:
+            # show image on e-paper display
+            self.driver.display(self.driver.getbuffer(image_black), self.driver.getbuffer(image_red))
         else:
-            # show image on screen
-            image_black, image_red = render(traffic_data, weather_data)
+            # show image on monitor
             image_black.show()
             image_red.show()
 

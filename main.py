@@ -127,8 +127,10 @@ def main():
                 logger.exception(err)
                 logger.warning("sleeping for an hour")
                 time.sleep(3600)
+
             else:  # exception handling
                 if last_exception['counter'] >= 3:  # if happened 3 times already, raise
+                    ui_driver.display_exception(err)
                     raise err
                 else:
                     if last_exception['type'] != type(err).__name__:
@@ -140,9 +142,7 @@ def main():
                     else:
                         last_exception['counter'] += 1  # if exception already occurred, increment counter
                         logger.error("Caught exception %s already %d times:" % (last_exception['type'], last_exception['counter']))
-                        # logger.exception(err)  # log, but do not raise
                         time.sleep(2)
-                        # TODO display image when oeffis-paper has crashed hard
 
 
 if __name__ == "__main__":
