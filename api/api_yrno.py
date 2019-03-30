@@ -98,17 +98,22 @@ class YRNOApi:
     """
 
     def __init__(self):
-        self.data = None
-        self.nextUpdate = 0
+        self.exc_info = None  # exception for main thread
+        self.data = None  # fetched data
+        self.nextUpdate = 0  # time when next update can be done in seconds since the Epoch
 
     def update(self):
         """
         Updates self.data iff an update is needed, else does nothing
         """
-        if self.nextUpdate <= time.time():
-            self._get_data()
-            conf = get_config()
-            self.nextUpdate = time.time() + conf['api']['yrno']['updateInterval']
+        try:
+            if self.nextUpdate <= time.time():
+                self._get_data()
+                conf = get_config()
+                self.nextUpdate = time.time() + conf['api']['yrno']['updateInterval']
+        except Exception as err:
+            import sys
+            self.exc_info = sys.exc_info()
 
     def _get_data(self):
         conf = get_config()

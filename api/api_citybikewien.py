@@ -36,6 +36,7 @@ class CitybikeWienApi:
     """
 
     def __init__(self):
+        self.exc_info = None  # exception for main thread
         self.data = None  # fetched data
         self.nextUpdate = 0  # time when next update can be done in seconds since the Epoch
 
@@ -43,14 +44,18 @@ class CitybikeWienApi:
         """
         Updates self.data iff an update is needed, else does nothing
         """
-        conf = get_config()
-        if 'citybikewien' not in conf['api']:  # optional citybikewien
-            logger.info("No citybikewien specified, skipping citybikewien api update()")
-            self.data = []
-            return
-        if self.nextUpdate <= time.time():  # only update when needed
-            self._get_data()
-            self.nextUpdate = time.time() + conf['api']['citybikewien']['updateInterval']
+        try:
+            conf = get_config()
+            if 'citybikewien' not in conf['api']:  # optional citybikewien
+                logger.info("No citybikewien specified, skipping citybikewien api update()")
+                self.data = []
+                return
+            if self.nextUpdate <= time.time():  # only update when needed
+                self._get_data()
+                self.nextUpdate = time.time() + conf['api']['citybikewien']['updateInterval']
+        except Exception as err:
+            import sys
+            self.exc_info = sys.exc_info()
 
     def _get_data(self):
         try:

@@ -90,28 +90,28 @@ def main():
     oebb_api = OeBBApi()
     citybikewien_api = CitybikeWienApi()
     weather_api = YRNOApi()
+    apis = [wrlinien_api, oebb_api, citybikewien_api, weather_api]
+
     ui_driver = UIDriver()
 
-    last_exception = {  # keep track of exceptions
-        "type": None,
-        "counter": 0
-    }
+    last_exceptions = dict()  # keep track of exceptions
 
     while True:
         try:
             logger.info("Cycle Start!")
             last_update = time.time()
 
-            threads = [
-                Worker("wrlinien_api", wrlinien_api),
-                Worker("oebb_api", oebb_api),
-                Worker("citybikewien_api", citybikewien_api),
-                Worker("weather_api", weather_api)
-            ]
+            threads = []
+            for api in apis:
+                threads.append(Worker(type(api).__name__, api))
+
             for t in threads:
                 t.start()
             for t in threads:
                 t.join()
+            for api in apis:
+                if api.exc_info:
+                    raise api.exc_info[1].with_traceback(api.exc_info[2])
 
             traffic_data = _to_display_data(wrlinien_api.data, oebb_api.data, citybikewien_api.data)
             logger.info("Traffic Data: %s" % traffic_data)
@@ -129,19 +129,18 @@ def main():
                 time.sleep(3600)
 
             else:  # exception handling
-                if last_exception['counter'] >= 3:  # if happened 3 times already, raise
-                    ui_driver.display_exception(err)
-                    raise err
+                if type(err).__name__ not in last_exceptions:
+                    last_exceptions[type(err).__name__] = 1
+                    logger.error("First time catching {}".format(type(err).__name__))
+                    time.sleep(2)
                 else:
-                    if last_exception['type'] != type(err).__name__:
-                        last_exception['type'] = type(err).__name__  # track new exception type instead
-                        last_exception['counter'] = 1
-                        logger.error("First time catching exception %s:" % last_exception['type'])
-                        # logger.exception(err)  # log, but do not raise
-                        time.sleep(2)
+                    if last_exceptions[type(err).__name__] >= 5:
+                        # if exception happened 5 times already, display and raise exception
+                        ui_driver.display_exception(err)
+                        raise err
                     else:
-                        last_exception['counter'] += 1  # if exception already occurred, increment counter
-                        logger.error("Caught exception %s already %d times:" % (last_exception['type'], last_exception['counter']))
+                        last_exceptions[type(err).__name__] += 1  # if exception already occurred, increment counter
+                        logger.error("Caught {} already {} times".format(type(err).__name__, last_exceptions[type(err).__name__]))
                         time.sleep(2)
 
 

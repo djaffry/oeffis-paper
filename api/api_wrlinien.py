@@ -56,17 +56,22 @@ class WrLinienApi:
     """
 
     def __init__(self):
-        self.data = None
-        self.nextUpdate = 0
+        self.exc_info = None  # exception for main thread
+        self.data = None  # fetched data
+        self.nextUpdate = 0  # time when next update can be done in seconds since the Epoch
 
     def update(self):
         """
         Updates self.data iff an update is needed, else does nothing
         """
-        if self.nextUpdate <= time.time():
-            self._get_data()
-            conf = get_config()
-            self.nextUpdate = time.time() + conf['api']['wrlinien']['updateInterval']
+        try:
+            if self.nextUpdate <= time.time():
+                self._get_data()
+                conf = get_config()
+                self.nextUpdate = time.time() + conf['api']['wrlinien']['updateInterval']
+        except Exception as err:
+            import sys
+            self.exc_info = sys.exc_info()
 
     @staticmethod
     def _merge_stations_by_name(result):

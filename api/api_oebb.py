@@ -53,19 +53,24 @@ class OeBBApi:
     """
 
     def __init__(self):
-        self.data = None
-        self.nextUpdate = 0
-        self.session_end = 0
-        self.header = ""
+        self.exc_info = None  # exception for main thread
+        self.data = None  # fetched data
+        self.nextUpdate = 0   # time when next update can be done in seconds since the Epoch
+        self.session_end = 0  # time when the session expires in seconds since the Epoch
+        self.header = ""  # header for requests
 
     def update(self):
         """
         Updates self.data iff an update is needed, else does nothing
         """
-        if self.nextUpdate <= time.time():  # only update when needed
-            self._get_data()
-            conf = get_config()
-            self.nextUpdate = time.time() + conf['api']['oebb']['updateInterval']
+        try:
+            if self.nextUpdate <= time.time():  # only update when needed
+                self._get_data()
+                conf = get_config()
+                self.nextUpdate = time.time() + conf['api']['oebb']['updateInterval']
+        except Exception as err:
+            import sys
+            self.exc_info = sys.exc_info()
 
     def _new_session(self):
         self.header = {'Channel': 'inet'}
