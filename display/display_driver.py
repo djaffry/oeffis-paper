@@ -1,16 +1,16 @@
 from .bpm_render import render, render_exception
 from utils import get_config
 from utils import get_logger
-# from lib.waveshare.epd7in5b import EPD
 import time
+from lib.waveshare.epd7in5b import EPD
 
 logger = get_logger(__name__)
 
 
 class UIDriver:
     def __init__(self):
-        self.driver = None
-        # self.driver = EPD()
+        # self.driver = None
+        self.driver = EPD()
         if self.driver is not None:
             self.driver.init()
 
