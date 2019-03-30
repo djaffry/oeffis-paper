@@ -129,8 +129,6 @@ Further two scripts can be found in [scripts](scripts):
 
 
 ## Future Work:
-* update to latest waveshare driver
-* display image when oeffis-paper has crashed hard
 * alternative gui: shows fewer information at once
 * implement a tool to get rbls easier
 * downtime gui: indicator that device is sleeping, show some image instead
