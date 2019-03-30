@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 rm ../nohup.out > /dev/null 2>&1
 
+./kill.sh
 if [[ ! -f current_pid.txt ]]; then
     (cd .. && nohup venv/bin/python3 main.py) &
     echo $! > current_pid.txt
