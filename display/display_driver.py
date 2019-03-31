@@ -2,15 +2,15 @@ from .bpm_render import render, render_exception
 from utils import get_config
 from utils import get_logger
 import time
-from lib.waveshare.epd7in5b import EPD
+# from lib.waveshare.epd7in5b import EPD
 
 logger = get_logger(__name__)
 
 
 class UIDriver:
     def __init__(self):
-        # self.driver = None
-        self.driver = EPD()
+        self.driver = None
+        # self.driver = EPD()
         if self.driver is not None:
             self.driver.init()
 
@@ -26,10 +26,13 @@ class UIDriver:
         image_black, image_red = render(traffic_data, weather_data)
         self._show(image_black, image_red)
 
-    def display_exception(self, err):
+    def display_exception(self, err, msg_list=None):
+        if msg_list is None:
+            msg_list = []
+
         if self.driver is not None:
             self.driver.Clear(0xFF)
-        image_black, image_red = render_exception(err)
+        image_black, image_red = render_exception(err, msg_list)
         self._show(image_black, image_red)
 
     def _show(self, image_black, image_red):

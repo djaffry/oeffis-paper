@@ -2,7 +2,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import time
-import textwrap
 from utils import get_config, get_logger
 
 logger = get_logger(__name__)
@@ -151,7 +150,11 @@ def render(display_data, weather):
     return image_black.rotate(90, expand=True), image_red.rotate(90, expand=True)
 
 
-def render_exception(err):
+def render_exception(err, msg_list=None):
+    if msg_list is None:
+        msg_list = []
+    import textwrap
+
     image_black = Image.new('L', DISPLAY_SIZE, 255)  # 255: clear the frame
     draw_black = ImageDraw.Draw(image_black)
     image_red = Image.new('L', DISPLAY_SIZE, 255)  # 255: clear the frame
@@ -166,5 +169,15 @@ def render_exception(err):
     for line in lines:
         y_offset = y_offset + 25
         draw_black.text((10, y_offset), line, font=MONO_FONT, fill=0)
+
+    if msg_list is not []:
+        small_mono_font = ImageFont.truetype('fonts/UbuntuMono-R.ttf', 18)
+        flatten = lambda li: [i for sublist in li for i in sublist]
+
+        y_offset = y_offset + 5
+        formatted_lines = flatten([textwrap.wrap(str(msg), width=36) for msg in msg_list])
+        for line in formatted_lines:
+            y_offset = y_offset + 25
+            draw_black.text((10, y_offset), line, font=small_mono_font, fill=0)
 
     return image_black, image_red

@@ -134,9 +134,10 @@ def main():
                     logger.error("First time catching {}".format(type(err).__name__))
                     time.sleep(2)
                 else:
-                    if last_exceptions[type(err).__name__] >= 5:
+                    if last_exceptions[type(err).__name__] >= 1:
                         # if exception happened 5 times already, display and raise exception
-                        ui_driver.display_exception(err)
+                        import traceback
+                        ui_driver.display_exception(err, [traceback.format_exc()])
                         raise err
                     else:
                         last_exceptions[type(err).__name__] += 1  # if exception already occurred, increment counter
