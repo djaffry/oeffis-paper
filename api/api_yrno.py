@@ -102,6 +102,9 @@ class YRNOApi:
         self.data = None  # fetched data
         self.nextUpdate = 0  # time when next update can be done in seconds since the Epoch
 
+    def reset(self):
+        self.__init__()
+
     def update(self):
         """
         Updates self.data iff an update is needed, else does nothing

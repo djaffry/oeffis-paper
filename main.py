@@ -73,7 +73,7 @@ def _to_display_data(wrlinien, oebb, citybikewien):
     return walking_time_data
 
 
-def _wait_for_next_udpate(last_update):
+def _wait_for_next_update(last_update):
     conf = get_config()
     update_delta = last_update - time.time() + conf['display']['updateInterval']
     if update_delta > 0:
@@ -117,7 +117,7 @@ def main():
             logger.info("Traffic Data: %s" % traffic_data)
             ui_driver.display(traffic_data, weather_api.data)
 
-            _wait_for_next_udpate(last_update)
+            _wait_for_next_update(last_update)
 
         except Exception as err:
             # TODO replace with downtime
@@ -132,6 +132,8 @@ def main():
                 if type(err).__name__ not in last_exceptions:
                     last_exceptions[type(err).__name__] = 1
                     logger.error("First time catching {}".format(type(err).__name__))
+                    for api in apis:
+                        api.reset()
                     time.sleep(2)
                 else:
                     if last_exceptions[type(err).__name__] >= 1:
@@ -142,6 +144,8 @@ def main():
                     else:
                         last_exceptions[type(err).__name__] += 1  # if exception already occurred, increment counter
                         logger.error("Caught {} already {} times".format(type(err).__name__, last_exceptions[type(err).__name__]))
+                        for api in apis:
+                            api.reset()
                         time.sleep(2)
 
 

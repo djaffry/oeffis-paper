@@ -59,6 +59,9 @@ class OeBBApi:
         self.session_end = 0  # time when the session expires in seconds since the Epoch
         self.header = ""  # header for requests
 
+    def reset(self):
+        self.__init__()
+
     def update(self):
         """
         Updates self.data iff an update is needed, else does nothing
