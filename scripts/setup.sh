@@ -102,7 +102,7 @@ else
         # if apt exists, install required packages
         echo "Installing libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl nohup"
         sudo apt update && sudo apt upgrade -y # update to latest  packages
-        if ! sudo apt install libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl nohup; then
+        if ! sudo apt install libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl coreutils; then
         sleep 0.5
             echo >&2 "Some error occured. Exiting..."
             exit 1
