@@ -9,7 +9,7 @@ from utils import get_config, get_logger
 
 logger = get_logger(__name__)
 
-
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
 def _gen_rnd_str(length):
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
@@ -76,7 +76,7 @@ class OeBBApi:
             self.exc_info = sys.exc_info()
 
     def _new_session(self):
-        self.header = {'Channel': 'inet'}
+        self.header = {'Channel': 'inet', 'User-Agent': user_agent}
         try:
             res = requests.get('https://tickets.oebb.at/api/domain/v3/init',
                                headers=self.header,
