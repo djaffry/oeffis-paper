@@ -37,7 +37,7 @@ more pictures in the [pics](pics) folder
 * Setup the Raspberry Pi. You can find a manual on how to and official images for `Raspbian` (recommended) at the [Raspberry Pi Download Page](https://www.raspberrypi.org/downloads/). 
     * If you wish to not use `Raspbian`, you have to do parts of the `oeffis-paper` setup later by yourself. These parts will be prompted to you. 
     * If you choose the Raspbian image, the `scripts/setup.sh` script will later install all required dependencies, fonts and assets for you.
-* Assemble the Waveshare E-Ink Display and HAT as written in the waveshare manual and connect it to the Raspberry Pi. Since the HAT can be plugged directly onto the GPIO headers, this process should not be to difficult.
+* Assemble the Waveshare E-Ink Display and HAT as written in the waveshare manual and connect it to the Raspberry Pi. Since the HAT can be plugged directly onto the GPIO headers, this process should not be to difficult. Don't forget to activate the Pi's [SPI](https://www.raspberrypi.org/documentation/configuration/raspi-config.md)!
 * Optionally print some case for the `oeffis-paper` hardware or use a picture frame. This is what I used: [IKEA Ribba](https://www.ikea.com/at/de/p/ribba-rahmen-weiss-70378414/)
 
 ### 2. Clone the repository:
@@ -106,6 +106,8 @@ To get the necessary ÖBB Station IDs use [djaffry/oebb-stations](https://github
 To get the RBL to your station, you have to look them up in the `csv` files at [data.gv.at](https://www.data.gv.at/katalog/dataset/stadt-wien_wienerlinienechtzeitdaten).
 By looking up your _HALTESTELLEN_ID_ in `csv-haltestellen` and the _LINIEN_id_ in `csv-linien` you can defer the right row for the _RBL_NUMMER_ (`rbl`) in `csv-steige`.
 
+Or have a look here: https://till.mabe.at/rbl/
+
 #### YR.NO Data
 To find the right city, province and country name, just search for your location at [yr.no](https://www.yr.no/), 
 go to the respective site of the city. Then use the parts after `place` in the URL for the values as `country/province/city`.
@@ -135,9 +137,3 @@ cd ~/oeffis-paper/scripts
 Further two scripts can be found in [scripts](scripts):
 * Use `./start.sh` to run in background. This process does not get killed when closing the `ssh` connection used to start the process.
 * Use `./kill.sh` to kill the current background process.
-
-
-## Future Work:
-* alternative gui: shows fewer information at once
-* implement a tool to get rbls easier
-* downtime gui: indicator that device is sleeping, show some image instead
