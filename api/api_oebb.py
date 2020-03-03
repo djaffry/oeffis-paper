@@ -1,17 +1,11 @@
-import random
-import string
-import requests
 import time
-
-from requests import RequestException, HTTPError
+import subprocess
+import json
+import os
 
 from utils import get_config, get_logger
 
 logger = get_logger(__name__)
-
-user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
-def _gen_rnd_str(length):
-    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
 
 class OeBBApi:
@@ -55,7 +49,7 @@ class OeBBApi:
     def __init__(self):
         self.exc_info = None  # exception for main thread
         self.data = None  # fetched data
-        self.nextUpdate = 0   # time when next update can be done in seconds since the Epoch
+        self.nextUpdate = 0  # time when next update can be done in seconds since the Epoch
         self.session_end = 0  # time when the session expires in seconds since the Epoch
         self.header = ""  # header for requests
 
@@ -74,32 +68,6 @@ class OeBBApi:
         except Exception as err:
             import sys
             self.exc_info = sys.exc_info()
-
-    def _new_session(self):
-        self.header = {'Channel': 'inet', 'User-Agent': user_agent}
-        try:
-            res = requests.get('https://tickets.oebb.at/api/domain/v3/init',
-                               headers=self.header,
-                               params={'userId': 'anonym-%s-%s-%s' % (_gen_rnd_str(8), _gen_rnd_str(4), _gen_rnd_str(2))})
-        except RequestException or HTTPError:  # retry on error
-            res = requests.get('https://tickets.oebb.at/api/domain/v3/init',
-                               headers=self.header,
-                               params={'userId': 'anonym-%s-%s-%s' % (_gen_rnd_str(8), _gen_rnd_str(4), _gen_rnd_str(2))})
-        res.raise_for_status()
-        auth = res.json()
-        logger.debug('autenticated: %s' % auth)
-        self.header.update(
-            {'AccessToken': auth['accessToken'], 'SessionId': auth['sessionId'], 'x-ts-supportid': auth['supportId']})
-        self.session_end = time.time() + auth['sessionTimeout']
-
-    def _get_header(self):
-        """
-        creates new header when session is expired
-        :return: updated self.header
-        """
-        if time.time() > self.session_end - 1000:
-            self._new_session()
-        return self.header
 
     @staticmethod
     def _replace_station_and_direction_names(stations):
@@ -147,97 +115,38 @@ class OeBBApi:
             stations.append({'lines': lines, 'name': unmerged_station['name']})
         return stations
 
-    @staticmethod
-    def _extract_line_and_calc_countdown(connection):
-        line = {
-            # 'name': data['sections'][0]['category']['displayName'].rjust(3),  # alternative name
-            'name': connection['sections'][0]['category']['shortName'].rjust(3),
-            'direction': connection['sections'][0]['to']['name'],
-            'barrierFree': 'disabled' in connection['sections'][0]['category']['journeyPreviewIconId'],
-            'trafficJam': 'departureDelay' in connection['sections'][0]['from']
-        }
-        if line['trafficJam']:  # if there is a delay, use departureDelay value instead
-            departure_time = time.strptime(connection['sections'][0]['from']['departureDelay'][:-3], "%Y-%m-%dT%H:%M:%S.")
-        else:
-            departure_time = time.strptime(connection['sections'][0]['from']['departure'][:-3], "%Y-%m-%dT%H:%M:%S.")
-        countdown = round((time.mktime(departure_time) - time.mktime(time.localtime())) / 60)
-        line['departures'] = [max(0, countdown)]
-        station = {'lines': [line], 'name': connection['sections'][0]['from']['name']}
-        return station
-
     def _get_data(self):
         self.data = None
         conf = get_config()
 
-        request_data = {  # oebb api request
-            "reverse": False,
-            "datetimeDeparture": None,
-            "filter": {
-                "regionaltrains": False,
-                "direct": False,
-                "changeTime": False,
-                "wheelchair": False,
-                "bikes": False,
-                "trains": False,
-                "motorail": False,
-                "droppedConnections": False
-            },
-            "passengers": [
-                {
-                    "type": "ADULT",
-                    "me": False,
-                    "remembered": False,
-                    "challengedFlags": {
-                        "hasHandicappedPass": False,
-                        "hasAssistanceDog": False,
-                        "hasWheelchair": False,
-                        "hasAttendant": False
-                    },
-                    "relations": [],
-                    "cards": [],
-                    "birthdateChangeable": True,
-                    "birthdateDeletable": True,
-                    "nameChangeable": True,
-                    "passengerDeletable": True
-                }
-            ],
-            "count": 5,
-            "from": {
-                "number": None
-            },
-            "to": {
-                "number": None
-            },
-        }
+        res_stations = []
+        for c in conf['api']['oebb']['connections']:
+            res_bytes = subprocess.check_output(
+                ["node", os.path.dirname(os.path.abspath(__file__)) + "/../lib/node/oebb-journeys.js", str(c['from']), str(c['to'])],
+                shell=False)
+            journey_data = json.loads(res_bytes.decode("utf-8").replace("'", '"'))
+            res_stations.append(journey_data)
 
-        stations = []
-        for conf_connection in conf['api']['oebb']['connections']:
-            request_data['from']['number'] = conf_connection['from']
-            request_data['to']['number'] = conf_connection['to']
-            request_data['datetimeDeparture'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        oebb_data = []
+        for r_s in res_stations:
+            station = {'name': r_s[0]['legs'][0]['origin']['name'], 'lines': []}
+            for l in r_s:
+                l = l['legs'][0]
+                if l['mode'].lower() == 'train':  # only count trains
+                    departure_time = time.strptime(l['departure'], "%Y-%m-%dT%H:%M:%S%z")
+                    countdown = round((time.mktime(departure_time) + 3600 - time.mktime(time.localtime())) / 60)
+                    line = {
+                        'departures': [max(0, countdown)],
+                        'direction': l['destination']['name'],
+                        'name': l['line']['product']['shortName'].rjust(3),
+                        'trafficJam': False,  # no data from api
+                        'barrierFree': False  # no data from api
+                    }
+                    station['lines'].append(line)
 
-            try:
-                res = requests.post('https://tickets.oebb.at/api/hafas/v4/timetable',
-                                    headers=self._get_header(),
-                                    json=request_data)
-            except RequestException or HTTPError:  # retry on error
-                logger.error("Caught RequestException")
-                res = requests.post('https://tickets.oebb.at/api/hafas/v4/timetable',
-                                    headers=self._get_header(),
-                                    json=request_data)
-            res.raise_for_status()
-            connections = res.json()['connections']
+            oebb_data.append(station)
 
-            for connection in connections:
-                if connection['switches'] > 0:  # skip if not a direct connection
-                    break
-                if connection['sections'][0]['category']['name'].lower() == 's' or \
-                        connection['sections'][0]['category']['name'].lower() == 'r':  # only trains
-                    stations.append(self._extract_line_and_calc_countdown(connection))
-                # else:
-                # logger.warning("[OeBB]: Other category found: %s" % connection['sections'][0]['category'])
-
-        renamed_stations = self._replace_station_and_direction_names(stations)
+        renamed_stations = self._replace_station_and_direction_names(oebb_data)
         premerged_stations = self._merge_stations_by_name(renamed_stations)
         oebb_data = self._merge_lines_by_direction(premerged_stations)
 

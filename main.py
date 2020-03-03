@@ -55,7 +55,7 @@ def _add_walking_time(transport_data):
 
 
 def _check_api_data(wrlinien, oebb, citybikewien):
-    error_msg = " Api Data is None"
+    error_msg = " Api Data is None. Please check log for more information"
     if wrlinien is None:
         raise NoDataException("Wr Linien" + error_msg)
 
@@ -90,7 +90,7 @@ def main():
     oebb_api = OeBBApi()
     citybikewien_api = CitybikeWienApi()
     weather_api = YRNOApi()
-    apis = [wrlinien_api, oebb_api, citybikewien_api, weather_api]
+    apis = [wrlinien_api, citybikewien_api, weather_api]  # no threading for oebb_api, calls subprocess
 
     ui_driver = UIDriver()
 
@@ -107,6 +107,8 @@ def main():
 
             for t in threads:
                 t.start()
+            oebb_api.update()
+
             for t in threads:
                 t.join()
             for api in apis:

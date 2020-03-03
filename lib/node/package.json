@@ -1,0 +1,23 @@
+{
+  "name": "oeffis-paper-nodejs-dependencies",
+  "version": "1.0.0",
+  "description": "nodejs dependencies for https://github.com/djaffry/oeffis-paper",
+  "main": "",
+  "dependencies": {
+    "oebb": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node oebb-journeys.js 1290201 1292101"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djaffry/oeffis-paper.git"
+  },
+  "author": "djaffry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/djaffry/oeffis-paper/issues"
+  },
+  "homepage": "https://github.com/djaffry/oeffis-paper#readme"
+}

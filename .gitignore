@@ -6,10 +6,14 @@ venv
 **/__pycache__/**
 **.pdf
 **.svg
+
+**/node_modules/
 **.json
 !config.json
+!lib/node/package.json
 
 **.zip
 fonts/**
 assets/yr/**
 lib/waveshare/**
+
