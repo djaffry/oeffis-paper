@@ -42,8 +42,13 @@ if ! hash nohup 2>/dev/null; then
     install_msg="$install_msg\n\t required for 'start.sh'"
 fi
 
-if ! hash npm 2>/dev/null; then
+if ! hash nodejs 2>/dev/null; then
     install_msg=" nodejs:"
+    install_msg="$install_msg\n\t required for retrieving OeBB data"
+fi
+
+if ! hash npm 2>/dev/null; then
+    install_msg=" npm:"
     install_msg="$install_msg\n\t required for retrieving OeBB data"
 fi
 
@@ -105,9 +110,9 @@ if [[ -z ${install_msg} ]]; then
 else
     if hash apt 2>/dev/null; then
         # if apt exists, install required packages
-        echo "Installing nodejs libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl nohup"
+        echo "Installing nodejs npm libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl nohup"
         sudo apt update && sudo apt upgrade -y # update to latest  packages
-        if ! sudo apt install nodejs libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl coreutils; then
+        if ! sudo apt install nodejs npm libopenjp2-7 libtiff5 python3 python3-venv p7zip-full curl coreutils; then
         sleep 0.5
             echo >&2 "Some error occured. Exiting..."
             exit 1
