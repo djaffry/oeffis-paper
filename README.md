@@ -17,7 +17,7 @@ more pictures in the [pics](pics) folder
 - Intuitive UI, see time, stations with their lines and weather on a 7.5 inch E-ink screen
 - Config file for easier configuring without changing code
 - Citybike Wien API for CitybikeWien station data, written in Python3
-- ÖBB API for getting the ETA of the upcoming ÖBB trains as a countdown in minutes, written in Python3
+- [juliuste's oebb](https://github.com/juliuste/oebb/) for getting the ETA of the upcoming ÖBB trains as a countdown in minutes
 - Wiener Linien API for getting the ETA of upcoming busses, trams or metros as a countdown in minutes, written in Python3
 - yr.no API for weather data, written in Python3
 
