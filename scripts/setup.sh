@@ -8,7 +8,10 @@ echo "#                           #"
 echo "#############################"
 
 echo ""
+echo ""
+echo ""
 echo "### check execution directory ###"
+echo ""
 if ! [[ `echo $0` == "./setup.sh" ]] && ! [[ `pwd` == */scripts ]]; then
     sleep 0.5
     echo >&2 "relative paths will not match!"
@@ -20,7 +23,10 @@ fi
 
 
 echo ""
+echo ""
+echo ""
 echo "### check for config.json ###"
+echo ""
 
 if [[ ! -f ../config.json ]]; then
     sleep 0.5
@@ -33,38 +39,41 @@ fi
 
 
 echo ""
+echo ""
+echo ""
 echo "### checking system dependencies ###"
+echo ""
 
 install_msg=""
 
 if ! hash nohup 2>/dev/null; then
     install_msg=" nohup:"
-    install_msg="$install_msg\n\t required for 'start.sh'"
+    install_msg="$install_msg\n required for 'start.sh'"
 fi
 
 if ! hash nodejs 2>/dev/null; then
     install_msg=" nodejs:"
-    install_msg="$install_msg\n\t required for retrieving OeBB data"
+    install_msg="$install_msg\n required for retrieving OeBB data"
 fi
 
 if ! hash npm 2>/dev/null; then
     install_msg=" npm:"
-    install_msg="$install_msg\n\t required for retrieving OeBB data"
+    install_msg="$install_msg\n required for retrieving OeBB data"
 fi
 
 if ! hash curl 2>/dev/null; then
     install_msg=" curl:"
-    install_msg="$install_msg\n\t required for downloading the waveshare library"
+    install_msg="$install_msg\n required for downloading the waveshare library"
 fi
 
 if ! hash 7z 2>/dev/null; then
     install_msg=" 7z (p7zip-full):"
-    install_msg="$install_msg\n\t required for unpacking the waveshare library"
+    install_msg="$install_msg\n required for unpacking the waveshare library"
 fi
 
 if ! hash python3 2>/dev/null; then
     install_msg="$install_msg\n python3:"
-    install_msg="$install_msg\n\t required for executing"
+    install_msg="$install_msg\n required for executing"
 fi
 
 satisfied_msg="all system dependencies"
@@ -73,7 +82,7 @@ if ! hash dpkg 2>/dev/null; then
     sleep 0.5
     echo -e "dpkg not installed. Probably not running Raspbian..."
     echo -e "dpkg:"
-    echo -e "\t used to check if packages libopenjp2.so.7 libtiff.so.5 python3-venv are installed."
+    echo -e " used to check if packages libopenjp2.so.7 libtiff.so.5 python3-venv are installed."
     sleep 1
     echo >&2 -e "\nPlease install libopenjp2.so.7 libtiff.so.5 python3-venv before continuing!"
 
@@ -87,21 +96,22 @@ if ! hash dpkg 2>/dev/null; then
             [Nn]* ) check=false; echo >&2 -e "Exiting..."; exit;;
         esac
     done
+    echo
 
 else
     if ! dpkg -s libopenjp2-7 > /dev/null 2>&1; then
         install_msg=" libopenjp2.so.7 (libopenjp2-7):"
-        install_msg="$install_msg\n\t required for running the pillow library"
+        install_msg="$install_msg\n required for running the pillow library"
     fi
 
     if ! dpkg -s libtiff5 > /dev/null 2>&1; then
         install_msg=" libtiff5 (libtiff.so.5):"
-        install_msg="$install_msg\n\t required for running the pillow library"
+        install_msg="$install_msg\n required for running the pillow library"
     fi
 
     if ! dpkg -s python3-venv > /dev/null 2>&1; then
         install_msg=" python3-venv:"
-        install_msg="$install_msg\n\t required for creating python3 virtual environments"
+        install_msg="$install_msg\n required for creating python3 virtual environments"
     fi
 fi
 
@@ -120,17 +130,30 @@ else
     else
         sleep 0.5
         # if apt does not exist, prompt to user
-        echo >&2 "Please use your distribution's package manager to install following dependencies:"
+        echo >&2 "Please use your distribution's package manager to install following dependencies first:"
         echo >&2 -e ${install_msg}
         echo >&2 "You might have to install:"
-        echo >&2 -e "\t libopenjp2.so.7 libtiff.so.5 python3-venv"
-        exit 1
+        echo >&2 -e " libopenjp2.so.7 libtiff.so.5 python3-venv"
+
+        check2=true
+        while ${check2}; do
+            sleep 1
+            echo "still continue? y/n"
+            read yn
+            case ${yn} in
+                [Yy]* ) check2=false; satisfied_msg="$satisfied_msg probably";;
+                [Nn]* ) check2=false; echo >&2 -e "Exiting..."; exit;;
+            esac
+        done
     fi
 fi
 
 
 echo ""
+echo ""
+echo ""
 echo "### downloading third party libraries ###"
+echo ""
 WS_TEMP_DIR=$(mktemp -d /tmp/setup.waveshare.XXXXXXXXXX) || exit 1
 echo "created temp directory: $WS_TEMP_DIR"
 WS_FILE_NAME="$WS_TEMP_DIR/waveshare_lib.7z"
@@ -156,7 +179,10 @@ patch -b -d ../lib/waveshare/ < patches/epd7in5b_20190327_import.patch
 
 
 echo ""
+echo ""
+echo ""
 echo "### downloading third party assets ###"
+echo ""
 
 echo "download latest yr.no icons"
 YR_ICONS_DIR="../assets/yr"
@@ -177,7 +203,10 @@ cd - >> /dev/null
 
 
 echo ""
+echo ""
+echo ""
 echo "### download fonts ###"
+echo ""
 FONTS_DIR="../fonts"
 mkdir -p ${FONTS_DIR}
 echo "downloading ubuntu and ubuntu mono font"
@@ -186,7 +215,10 @@ curl "https://raw.githubusercontent.com/google/fonts/master/ufl/ubuntumono/Ubunt
 
 
 echo ""
+echo ""
+echo ""
 echo "### installing python3 venv ###"
+echo ""
 if ! python3 -m venv ../venv; then
     sleep 0.5
     echo >&2 "Some error occured. Have you python3-venv installed?"
@@ -197,7 +229,10 @@ echo "created"
 
 
 echo ""
+echo ""
+echo ""
 echo "### installing nodejs dependencies from ../lib/node/package.json ###"
+echo ""
 NODE_DIR="../lib/node/"
 mkdir -p $NODE_DIR
 cd $NODE_DIR
@@ -210,7 +245,10 @@ cd - >> /dev/null
 
 
 echo ""
+echo ""
+echo ""
 echo "### installing python dependencies from ../requirements.txt ###"
+echo ""
 ../venv/bin/pip3 install --upgrade pip
 if ! ../venv/bin/pip3 install -r ../requirements.txt; then
     sleep 0.5
@@ -222,6 +260,8 @@ if ! ../venv/bin/pip3 install -r ../requirements.txt; then
 fi
 
 
+echo ""
+echo ""
 echo ""
 echo "### all done ###"
 echo "INFO: use './start.sh' to run in background"
