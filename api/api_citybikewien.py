@@ -49,10 +49,6 @@ class CitybikeWienApi:
         """
         try:
             conf = get_config()
-            if 'citybikewien' not in conf['api']:  # optional citybikewien
-                logger.info("No citybikewien specified, skipping citybikewien api update()")
-                self.data = []
-                return
             if self.nextUpdate <= time.time():  # only update when needed
                 self._get_data()
                 self.nextUpdate = time.time() + conf['api']['citybikewien']['updateInterval']
@@ -90,5 +86,5 @@ class CitybikeWienApi:
                         station['name'] = conf_station['rename']
                         break
 
-        logger.info("updated data: %s" % citybikewien_data)
+        logger.debug("updated data: %s" % citybikewien_data)
         self.data = citybikewien_data

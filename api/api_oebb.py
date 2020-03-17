@@ -150,5 +150,5 @@ class OeBBApi:
         premerged_stations = self._merge_stations_by_name(renamed_stations)
         oebb_data = self._merge_lines_by_direction(premerged_stations)
 
-        logger.info("retrieved data: %s" % oebb_data)
+        logger.debug("retrieved data: %s" % oebb_data)
         self.data = oebb_data

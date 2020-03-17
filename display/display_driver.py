@@ -26,13 +26,13 @@ class UIDriver:
         image_black, image_red = render(traffic_data, weather_data)
         self._show(image_black, image_red)
 
-    def display_exception(self, err, msg_list=None):
+    def display_exception(self, err, err_type, msg_list=None):
         if msg_list is None:
             msg_list = []
 
         if self.driver is not None:
             self.driver.Clear(0xFF)
-        image_black, image_red = render_exception(err, msg_list)
+        image_black, image_red = render_exception(err, err_type, msg_list)
         self._show(image_black, image_red)
 
     def _show(self, image_black, image_red):

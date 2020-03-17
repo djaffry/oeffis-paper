@@ -132,5 +132,5 @@ class WrLinienApi:
             'stations': self._merge_stations_by_name(translated_result),
             'lastUpdate': time.strptime(api_data['message']['serverTime'], '%Y-%m-%dT%H:%M:%S.%f%z')
         }
-        logger.info("retrieved data: %s" % wrlinien_data)
+        logger.debug("retrieved data: %s" % wrlinien_data)
         self.data = wrlinien_data

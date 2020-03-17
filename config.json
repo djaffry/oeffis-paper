@@ -2,10 +2,6 @@
   "display": {
     "renderOffset": 1,
     "updateInterval": 59,
-    "downtime": {
-      "from": 21,
-      "to": 7
-    },
     "title": "Öffis Paper"
   },
 

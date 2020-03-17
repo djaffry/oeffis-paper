@@ -44,7 +44,7 @@ def _format_addr(addr, length):
     return _format_name(addr, length)
 
 
-def render(display_data, weather):
+def render(display_data, weather_data):
     conf = get_config()
 
     # Setup Image and Draw
@@ -113,44 +113,45 @@ def render(display_data, weather):
         y_offset = y_offset + 45
 
     # Footer: Weather data
-    draw_red.rectangle(((0, 564), (DISPLAY_WIDTH, DISPLAY_HEIGHT)), fill=0)
-    fst_row_height = 568
-    snd_row_height = 598
-    weather_cols = 2
-    x_offset = 0
-    for i in range(0, weather_cols):
-        if not (int(DISPLAY_WIDTH / weather_cols) + x_offset + 1 >= DISPLAY_WIDTH):
-            draw_red.rectangle(((int(DISPLAY_WIDTH / weather_cols) + x_offset, 564 + 3),
-                                (int(DISPLAY_WIDTH / weather_cols) + 1 + x_offset, DISPLAY_HEIGHT - 3)), fill=255)
-        draw_red.text((10 + x_offset, fst_row_height), time.strftime("%H:%M", weather['forecast'][i]['time']['from']),
-                      font=MONO_FONT, fill=255)
-        draw_red.text((int(DISPLAY_WIDTH / weather_cols) - 74 + x_offset, fst_row_height),
-                      weather['forecast'][i]['celsius'].rjust(3) + '°C', font=MONO_FONT, fill=255)
+    if bool(weather_data):
+        draw_red.rectangle(((0, 564), (DISPLAY_WIDTH, DISPLAY_HEIGHT)), fill=0)
+        fst_row_height = 568
+        snd_row_height = 598
+        weather_cols = 2
+        x_offset = 0
+        for i in range(0, weather_cols):
+            if not (int(DISPLAY_WIDTH / weather_cols) + x_offset + 1 >= DISPLAY_WIDTH):
+                draw_red.rectangle(((int(DISPLAY_WIDTH / weather_cols) + x_offset, 564 + 3),
+                                    (int(DISPLAY_WIDTH / weather_cols) + 1 + x_offset, DISPLAY_HEIGHT - 3)), fill=255)
+            draw_red.text((10 + x_offset, fst_row_height), time.strftime("%H:%M", weather_data['forecast'][i]['time']['from']),
+                          font=MONO_FONT, fill=255)
+            draw_red.text((int(DISPLAY_WIDTH / weather_cols) - 74 + x_offset, fst_row_height),
+                          weather_data['forecast'][i]['celsius'].rjust(3) + '°C', font=MONO_FONT, fill=255)
 
-        weather_id = str(weather['forecast'][i]['symbol']['id']).zfill(2)
-        is_night = weather['sun']['rise'] > time.localtime() > weather['sun'][
-            'set']  # check if current time is between sunset and sunrise
-        icon = YR_ASSETS_DIR + weather_id + (is_night if '' else 'n') + '.png'  # get specific icon from assets folder
-        try:
-            img = Image.open(icon)
-        except FileNotFoundError:  # if there is no night icon for the weather type, then use day time variant instead
+            weather_id = str(weather_data['forecast'][i]['symbol']['id']).zfill(2)
+            is_night = weather_data['sun']['rise'] > time.localtime() > weather_data['sun'][
+                'set']  # check if current time is between sunset and sunrise
+            icon = YR_ASSETS_DIR + weather_id + (is_night if '' else 'n') + '.png'  # get specific icon from assets folder
             try:
-                img = Image.open(YR_ASSETS_DIR + weather_id + '.png')
-            except FileNotFoundError as err:
-                logger.error(
-                    "No YR icon named %s found! Have you run the setup script?" % (YR_ASSETS_DIR + weather_id + '.png'))
-                raise err
-        img = img.convert("RGBA").resize((35, 35), Image.ANTIALIAS)
-        draw_red.bitmap((10 + x_offset, snd_row_height - 2), img, fill=255)
-        draw_red.text((int(DISPLAY_WIDTH / weather_cols) - 99 + x_offset, snd_row_height),
-                      str(weather['forecast'][i]['wind']['mps']).rjust(3) + "km/h", font=MONO_FONT, fill=255)
+                img = Image.open(icon)
+            except FileNotFoundError:  # if there is no night icon for the weather type, then use day time variant instead
+                try:
+                    img = Image.open(YR_ASSETS_DIR + weather_id + '.png')
+                except FileNotFoundError as err:
+                    logger.error(
+                        "No YR icon named %s found! Have you run the setup script?" % (YR_ASSETS_DIR + weather_id + '.png'))
+                    raise err
+            img = img.convert("RGBA").resize((35, 35), Image.ANTIALIAS)
+            draw_red.bitmap((10 + x_offset, snd_row_height - 2), img, fill=255)
+            draw_red.text((int(DISPLAY_WIDTH / weather_cols) - 99 + x_offset, snd_row_height),
+                          str(weather_data['forecast'][i]['wind']['mps']).rjust(3) + "km/h", font=MONO_FONT, fill=255)
 
-        x_offset = x_offset + int(DISPLAY_WIDTH / weather_cols)
+            x_offset = x_offset + int(DISPLAY_WIDTH / weather_cols)
 
     return image_black.rotate(90, expand=True), image_red.rotate(90, expand=True)
 
 
-def render_exception(err, msg_list=None):
+def render_exception(err, err_type, msg_list=None):
     if msg_list is None:
         msg_list = []
     import textwrap
@@ -161,9 +162,9 @@ def render_exception(err, msg_list=None):
     draw_red = ImageDraw.Draw(image_red)
 
     y_offset = 20
-    draw_red.text((10, y_offset), type(err).__name__, font=TITLE_FONT, fill=0)
+    draw_red.text((10, y_offset), err_type, font=TITLE_FONT, fill=0)
 
-    lines = textwrap.wrap(str(err), width=36)
+    lines = textwrap.wrap(err, width=36)
 
     y_offset = y_offset + 10
     for line in lines:
@@ -172,10 +173,10 @@ def render_exception(err, msg_list=None):
 
     if msg_list is not []:
         small_mono_font = ImageFont.truetype('fonts/UbuntuMono-R.ttf', 18)
-        flatten = lambda li: [i for sublist in li for i in sublist]
+        flattened = lambda li: [i for sublist in li for i in sublist]
 
         y_offset = y_offset + 5
-        formatted_lines = flatten([textwrap.wrap(str(msg), width=36) for msg in msg_list])
+        formatted_lines = flattened([textwrap.wrap(str(msg), width=36) for msg in msg_list])
         for line in formatted_lines:
             y_offset = y_offset + 25
             draw_black.text((10, y_offset), line, font=small_mono_font, fill=0)

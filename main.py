@@ -18,7 +18,7 @@ class NoDataException(Exception):
 
 def _merge_api_data(wrlinien, oebb, citybikewien):
     # merge wrlinien and oebb
-    unmerged_stations = copy.deepcopy(wrlinien['stations']) + oebb  # do not make changes to original dicts
+    unmerged_stations = copy.deepcopy(wrlinien['stations'] if 'stations' in wrlinien else []) + oebb  # do not make changes to original dicts
     stations = []
     for unmerged_station in unmerged_stations:
         exists = False
@@ -42,7 +42,7 @@ def _merge_api_data(wrlinien, oebb, citybikewien):
                 'name': bike_station['name'],
                 'citybikewien': bike_station
             })
-    return {'stations': stations, 'lastUpdate': wrlinien['lastUpdate']}
+    return {'stations': stations, 'lastUpdate': wrlinien['lastUpdate'] if bool(wrlinien) else time.localtime()}
 
 
 def _add_walking_time(transport_data):
@@ -86,15 +86,22 @@ def _wait_for_next_update(last_update):
 def main():
     logger.info("Application Start!")
 
-    wrlinien_api = WrLinienApi()
-    oebb_api = OeBBApi()
-    citybikewien_api = CitybikeWienApi()
-    weather_api = YRNOApi()
-    apis = [wrlinien_api, citybikewien_api, weather_api]  # no threading for oebb_api, calls subprocess
-
+    conf = get_config()
     ui_driver = UIDriver()
-
     last_exceptions = dict()  # keep track of exceptions
+
+    api_classes = {
+        "wrlinien": WrLinienApi,
+        "oebb": OeBBApi,
+        "citybikewien": CitybikeWienApi,
+        "yrno": YRNOApi
+    }
+    threaded_apis = {}
+
+    # select apis from config.json, create api objects and save the reference to threaded_apis dict
+    for conf_api_name in api_classes:
+        if conf_api_name in conf['api']:
+            threaded_apis[conf_api_name] = api_classes[conf_api_name]()
 
     while True:
         try:
@@ -102,27 +109,32 @@ def main():
             last_update = time.time()
 
             threads = []
-            for api in apis:
+            for api_name in threaded_apis:
+                api = threaded_apis[api_name]
                 threads.append(Worker(type(api).__name__, api))
 
             for t in threads:
                 t.start()
-            oebb_api.update()
 
             for t in threads:
                 t.join()
-            for api in apis:
+            for api_name in threaded_apis:
+                api = threaded_apis[api_name]
                 if api.exc_info:
                     raise api.exc_info[1].with_traceback(api.exc_info[2])
 
-            traffic_data = _to_display_data(wrlinien_api.data, oebb_api.data, citybikewien_api.data)
+            wrlinien_data = threaded_apis['wrlinien'].data if 'wrlinien' in threaded_apis else {}
+            oebb_data = threaded_apis['oebb'].data if 'oebb' in threaded_apis else []
+            citybikewien_data = threaded_apis['citybikewien'].data if 'citybikewien' in threaded_apis else {}
+            yrno_data = threaded_apis['yrno'].data if 'yrno' in threaded_apis else {}
+
+            traffic_data = _to_display_data(wrlinien_data, oebb_data, citybikewien_data)
             logger.info("Traffic Data: %s" % traffic_data)
-            ui_driver.display(traffic_data, weather_api.data)
+            ui_driver.display(traffic_data, yrno_data)
 
             _wait_for_next_update(last_update)
 
         except Exception as err:
-            # TODO replace with downtime
             # sleeps one hour if error between 1 and 5 a.m., where less traffic info is available
             hour = int(time.strftime("%H"))
             if 1 <= hour <= 5:
@@ -134,19 +146,28 @@ def main():
                 if type(err).__name__ not in last_exceptions:
                     last_exceptions[type(err).__name__] = 1
                     logger.error("First time catching {}".format(type(err).__name__))
-                    for api in apis:
+                    for api_name in threaded_apis:
+                        api = threaded_apis[api_name]
                         api.reset()
                     time.sleep(2)
                 else:
                     if last_exceptions[type(err).__name__] >= 1:
                         # if exception happened 5 times already, display and raise exception
                         import traceback
-                        ui_driver.display_exception(err, [traceback.format_exc()])
+                        # censor wrlinien key on display
+                        err_name = str(err)
+                        msg = traceback.format_exc()
+                        if 'wrlinien' in threaded_apis:
+                            censored_key = "*CENSORED KEY*"
+                            err_name = err_name.replace(conf['api']['wrlinien']['key'], censored_key)
+                            msg = msg.replace(conf['api']['wrlinien']['key'], censored_key)
+                        ui_driver.display_exception(err_name, type(err).__name__, [msg])
                         raise err
                     else:
                         last_exceptions[type(err).__name__] += 1  # if exception already occurred, increment counter
                         logger.error("Caught {} already {} times".format(type(err).__name__, last_exceptions[type(err).__name__]))
-                        for api in apis:
+                        for api_name in threaded_apis:
+                            api = threaded_apis[api_name]
                             api.reset()
                         time.sleep(2)
 

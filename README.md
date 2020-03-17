@@ -54,9 +54,6 @@ Descriptions to the different key-value pairs can be found in the respective cla
 * `display` (json) - display relevant configurations
     * `renderOffset` (int, optional) - corrects displayed time and minutes until arrival by this offset in minutes, counters display hysteresis
     * `updateInterval` (int) - the display will try to update every `updateInterval` seconds. due to delay, sometimes this is not possible 
-    * `downtime` (json, optional) - downtime relevant configurations, will be improved in future
-        * `from` (int) - downtime start
-        * `to` (int) - downtime end
     * `title` (string) - title displayed in the upper left corner of display
 
 * `stations` (json) - station relevant configurations
@@ -66,13 +63,13 @@ Descriptions to the different key-value pairs can be found in the respective cla
         * `time` (int) - how long it takes to walk to that station in minutes
 
 * `api` (json) - api relevant configurations
-    * `citybikewien` (json, optional) - citybikewien configurations
+    * `citybikewien` (json, optional) - citybikewien configurations 
         * `updateInterval`(int) - minimum of how long until the next API call should be made in seconds
         * `stations` (array[json]) - jsons with station ids and values
             * `id` (int) - id of station ([see Citybike Wien Data](#citybike-wien-data-(optional)))
             * `rename` (str, optional) - use this value instead of the api's station name
             
-    * `oebb` (json) - ÖBB configurations
+    * `oebb` (json, optional) - ÖBB configurations
         * `updateInterval`(int) - minimum of how long until the next API call should be made in seconds
         * `connections` (array[json]) - jsons of connections
             * `from` (string) - departure station oebb id ([see ÖBB Data](#öbb-data))
@@ -81,12 +78,12 @@ Descriptions to the different key-value pairs can be found in the respective cla
             * `old` (string) - old name to be replaced, so it can be merged by name with other stations
             * `new` (string) - new name to be renamed into
     
-    * `wrlinien` (json) - Wiener Linien configurations
+    * `wrlinien` (json, optional) - Wiener Linien configurations
         * `updateInterval` (int) - minimum of how long until the next API call should be made in seconds
         * `key` (string) - Wiener Linien API key ([see Wiener Linien Data](#wiener-linien-data))
         * `rbls` (array[int]) - Array of rbls (Wiener Linien station ids, see below)
 
-    * `yrno` (json) - yr.no configurations
+    * `yrno` (json, optional) - yr.no configurations
         * `updateInterval` (int) - minimum of how long until the next API call should be made in seconds
         * `city` (string) - name of the city ([see YR.NO Data](#yr.no-data))
         * `province` (string) - name of the province ([see YR.NO Data](#yr.no-data))

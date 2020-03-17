@@ -170,5 +170,5 @@ class YRNOApi:
                 "celsius": time_xml.find('temperature').get('value')
             })
 
-        logger.info("retrieved data: %s" % weather_data)
+        logger.debug("retrieved data: %s" % weather_data)
         self.data = weather_data
