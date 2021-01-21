@@ -12,6 +12,9 @@ Get public transport information instantly, like being at a real station!
 
 more pictures in the [pics](pics) folder
 
+> :warning: Unfortunately, my 7.5inch E-Ink display broke. So I cannot update this project anymore. Feel free to fork this project and tinker by yourself!
+
+
 ## Features
 - Displays ÖBB and Wiener Linien public transport times, Citybike Wien station capacities and weather at a glance
 - Intuitive UI, see time, stations with their lines and weather on a 7.5 inch E-ink screen
